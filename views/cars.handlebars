@@ -49,9 +49,9 @@
                                 <h4>CHOOSE CAR TYPE:</h4>
                                 <select class="custom-select" name="carType" id="carTypeInput">
                                     <option selected="">Select</option>
-                                    <option value="pickup">Pickup</option>
-                                    <option value="sedan">Sedan</option>
-                                    <option value="hatcback">Hatcback</option>
+                                    <option value="1">Pickup</option>
+                                    <option value="2">Sedan</option>
+                                    <option value="3">Hatcback</option>
                                 </select>
                             </div>
                             <!--== Car Choose ==-->
@@ -122,8 +122,8 @@
             if (urlData["endDate"]) {
                 $("#endDateInput").val(urlData["endDate"][0]);
             }
-            if (urlData["cartType"]) {
-                $("#cartTypeInput").val(urlData["cartType"][0]);
+            if (urlData["carType"]) {
+                $("#carTypeInput").val(urlData["carType"][0]);
             }
         }
 
@@ -157,10 +157,12 @@
             const Http = new XMLHttpRequest();
             const url='http://ec2-54-175-0-146.compute-1.amazonaws.com:3000/cars';
             Http.open("GET", url);
+            Http.setRequestHeader("Authorization","token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3RAdGVzdC5jb20iLCJfaWQiOiI1ZmM5NWUwMTJhZmNjYjAwMWNlMzVjOWQiLCJ1c2VySWQiOiI1ZmM5NWUwMTJhZmNjYjAwMWNlMzVjOWQiLCJpYXQiOjE2MDcwMzIzNDEsImV4cCI6MTYwNzA2ODM0MX0.7gkjwwHNSWAKOvrWTIuxkqTCu9LMG73QHcadKCIOafg");
             Http.send();
 
             Http.onreadystatechange = (e) => {
                 if(Http.readyState == 4) {
+                    console.log(Http.responseText);
                     carData = JSON.parse(Http.responseText);
                     listCars(carData);
                 }
@@ -172,16 +174,92 @@
             for(let i = 0; i < data["products"].length; i++){
                 console.log(data["products"][i]);
                 let car = data["products"][i];
-                
-                if(urlData && urlData["location"]) {
+
+                //filter location
+                if(urlData && urlData["location"] && urlData["location"] != "Select") {
                     if (car["location"] != urlData["location"]) continue;
                 }
 
+                //filter type
+                if(urlData && urlData["carType"] && urlData["carType"] != "Select") {
+                    if (car["car_type"] != urlData["carType"]) continue;
+                }
+
+                car["reserved"] = randDate(hashCode(car["_id"]), 20);
+                console.log(car["reserved"]);
+
+                //filter dates
+                let reserved = false;
+                if(urlData && urlData["startDate"] && urlData["endDate"]) {
+                    for (let i = 0; i < car["reserved"].length; i++) {
+                        //console.log(new Date(urlData["startDate"]))
+                        //console.log(new Date(car["reserved"][i]))
+                        //console.log(new Date(urlData["endDate"]))
+                        if (new Date(urlData["startDate"]) <= new Date(car["reserved"][i]) && new Date(urlData["endDate"]) >= new Date(car["reserved"][i])) {
+                            reserved = true;
+                        }
+                    }
+                }
+                if(reserved) {
+                    console.log("reserved");
+                    continue;
+                }
+
+
                 let image = "https://www.extremetech.com/wp-content/uploads/2019/12/SONATA-hero-option1-764A5360-edit.jpg";
                 let fuel = "eco";
-                carListing(car["name"], car["rate_per_hour"], image, car["car_type"], car["car_maker"], car["number_of_seats"], fuel, car["description"]);
+
+                let type = "Pickup"
+                if(car["car_type"] == "2") type = "Sedan";
+                if(car["car_type"] == "2") type = "Hatchback";
+
+                carListing(car["name"], car["rate_per_hour"], image, type, car["car_maker"], car["number_of_seats"], fuel, car["description"]);
             }
         };
+
+        function randDate(seed, count){
+            let date = [];
+            let rng = new RNG(seed);
+            for(let i=0; i < count; i++) {
+                let d = rng.nextRange(1, 31);
+                let m = rng.nextRange(11, 13);
+                if (d < 0) d = d * -1;
+                if (d < 10) d = "0" + d + "";
+                date.push(m + "/" + d + "/2020");
+            }
+            return date;
+        }
+
+        function RNG(seed) {
+            // LCG using GCC's constants
+            this.m = 0x80000000; // 2**31;
+            this.a = 1103515245;
+            this.c = 12345;
+
+            this.state = seed ? seed : Math.floor(Math.random() * (this.m - 1));
+        }
+        RNG.prototype.nextInt = function() {
+            this.state = (this.a * this.state + this.c) % this.m;
+            return this.state;
+        }
+        RNG.prototype.nextFloat = function() {
+            // returns in range [0,1]
+            return this.nextInt() / (this.m - 1);
+        }
+        RNG.prototype.nextRange = function(start, end) {
+            // returns in range [start, end): including start, excluding end
+            // can't modulu nextInt because of weak randomness in lower bits
+            var rangeSize = end - start;
+            var randomUnder1 = this.nextInt() / this.m;
+            return start + Math.floor(randomUnder1 * rangeSize);
+        }
+        RNG.prototype.choice = function(array) {
+            return array[this.nextRange(0, array.length)];
+        }
+
+        hashCode = function(s){
+            return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
+        }
 
     </script>
 
