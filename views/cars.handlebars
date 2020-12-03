@@ -1,15 +1,16 @@
-<div class="container">  
+<div class="container">
     <div class="single-slide-item overlay">
         <div class="container">
+            <div id="bg"></div>
             <br><br>
-            <div class="row">
+            <div class="row" id="inputRow">
                 <div class="col-lg-5">
                     <div class="book-a-car">
                         <form action="#" method="get">
                             <!--== Pick Up Location ==-->
                             <div class="pickup-location book-item">
                                 <h4>PICK-UP LOCATION:</h4>
-                                <select class="custom-select">
+                                <select class="custom-select" name="location" id="locationInput">
                                     <option selected="">Select</option>
                                     <option value="location1">Location1</option>
                                     <option value="location2">Location2</option>
@@ -25,7 +26,7 @@
                             <div class="pick-up-date book-item">
                                 <h4>PICK-UP DATE:</h4>
                                 <div role="wrapper" class="gj-datepicker gj-datepicker-bootstrap gj-unselectable input-group">
-                                    <input class="form-control" id="startdate" name="startdate" placeholder="MM/DD/YYY" type="text"/>
+                                    <input class="form-control" id="startDateInput" name="startDate" placeholder="MM/DD/YYY" type="text"/>
                                     <span class="input-group-append" role="right-icon">
                                         <span class="input-group-text"><i class="fa fa-calendar" aria-hidden="true"></i></span>
                                     </span>
@@ -34,7 +35,7 @@
                                 <div class="return-car">
                                     <h4>Return DATE:</h4>
                                     <div role="wrapper" class="gj-datepicker gj-datepicker-bootstrap gj-unselectable input-group">
-                                        <input class="form-control" id="enddate" name="enddate" placeholder="MM/DD/YYY" type="text"/>
+                                        <input class="form-control" id="endDateInput" name="endDate" placeholder="MM/DD/YYY" type="text"/>
                                         <span class="input-group-append" role="right-icon">
                                             <span class="input-group-text"><i class="fa fa-calendar" aria-hidden="true"></i></span>
                                         </span>
@@ -46,7 +47,7 @@
                             <!--== Car Choose ==-->
                             <div class="choose-car-type book-item">
                                 <h4>CHOOSE CAR TYPE:</h4>
-                                <select class="custom-select">
+                                <select class="custom-select" name="carType" id="carTypeInput">
                                     <option selected="">Select</option>
                                     <option value="pickup">Pickup</option>
                                     <option value="sedan">Sedan</option>
@@ -68,33 +69,143 @@
                         <div class="display-table-cell">
                             <div class="slider-right-text">
                                 <h1>BOOK A CAR TODAY!</h1>
-                                <p>THE RENTER COMPANY CAN PUT SOME COOL DISCOUNT HERE <br> FOR OUR RETURNING CUSTOMERS AND SJSU STUDENTS</p>
+                                <p>
+                                    THE RENTER COMPANY CAN PUT SOME COOL DISCOUNT HERE <br>
+                                    FOR OUR RETURNING CUSTOMERS AND SJSU STUDENTS
+                                </p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <br><hr><br>
+            <div id="carList">
+
+            </div>
         </div>
-    </div>     
-    
+    </div>
+
     <script>
-        $('#startdate').datepicker();
-        $('#enddate').datepicker();
-    </script> 
+        $('#startDateInput').datepicker();
+        $('#endDateInput').datepicker();
+
+        function parseURLParams(url) {
+            var queryStart = url.indexOf("?") + 1,
+                    queryEnd   = url.indexOf("#") + 1 || url.length + 1,
+                    query = url.slice(queryStart, queryEnd - 1),
+                    pairs = query.replace(/\+/g, " ").split("&"),
+                    parms = {}, i, n, v, nv;
+
+            if (query === url || query === "") return;
+
+            for (i = 0; i < pairs.length; i++) {
+                nv = pairs[i].split("=", 2);
+                n = decodeURIComponent(nv[0]);
+                v = decodeURIComponent(nv[1]);
+
+                if (!parms.hasOwnProperty(n)) parms[n] = [];
+                parms[n].push(nv.length === 2 ? v : null);
+            }
+            return parms;
+        }
+
+        data = parseURLParams(window.location.href);
+        console.log(data);
+
+        if(data) {
+            if (data["location"]) {
+                $("#locationInput").val(data["location"][0]);
+            }
+            if (data["startDate"]) {
+                $("#startDateInput").val(data["startDate"][0]);
+            }
+            if (data["endDate"]) {
+                $("#endDateInput").val(data["endDate"][0]);
+            }
+            if (data["cartType"]) {
+                $("#cartTypeInput").val(data["cartType"][0]);
+            }
+        }
+
+        function carListing(carName, rate, imgSrc, type, maker, seats, fuel, desc){
+            let listing = "";
+
+            listing += "<div class='row'>";
+            listing += "<div class='card col-12' style='padding:0px'>";
+            listing += "<div class='card-header'>"
+            listing += "<h4 style='float:left;'>"+carName+"</h4>"
+            listing += "<button style='float:right;' class='btn btn-md btn-success'>Rent for $"+rate+"/h</button>"
+            listing += "</div>";
+            listing += "<div class='row'>";
+            listing += "<div class='col-3'><img src='"+imgSrc+"' width='100%' style='border: solid gray 2px; border-radius: 2px'/></div>";
+            listing += "<table class='col-4'>";
+            listing += "<tr><td><span><i class=\"fa fa-car\"></i> Type: "+type+"</span></td>";
+            listing += "<td><span><i class=\"fa fa-cogs\"></i> Brand: "+maker+"</span></td></tr>";
+            listing += "<tr><td><span><i class=\"fa fa-gas-pump\"></i>  Fuel usage: "+fuel+"</span></td>";
+            listing += "<td><span><i class=\"fa fa-chair\"></i> seats: "+seats+"</span></td></tr>";
+            listing += "</table>";
+            listing += "<p class='col-3'>"+desc+"</p>";
+            listing+= "</div>";
+            listing += "</div>";
+            listing += "</div><br>";
+
+            $("#carList").append($(listing));
+        }
+        carListing("Car Name1", 100, "https://www.extremetech.com/wp-content/uploads/2019/12/SONATA-hero-option1-764A5360-edit.jpg", "Hatchback", "BMW", "5");
+        carListing("car2", 400, "https://www.extremetech.com/wp-content/uploads/2019/12/SONATA-hero-option1-764A5360-edit.jpg", "Hatchback", "BMW", "5");
+        carListing("car3", 50, "https://www.extremetech.com/wp-content/uploads/2019/12/SONATA-hero-option1-764A5360-edit.jpg", "Hatchback", "BMW", "5");
+        carListing("car3", 50, "https://www.extremetech.com/wp-content/uploads/2019/12/SONATA-hero-option1-764A5360-edit.jpg", "Hatchback", "BMW", "5");
+        carListing("car3", 50, "https://www.extremetech.com/wp-content/uploads/2019/12/SONATA-hero-option1-764A5360-edit.jpg", "Hatchback", "BMW", "5");
+        carListing("car3", 50, "https://www.extremetech.com/wp-content/uploads/2019/12/SONATA-hero-option1-764A5360-edit.jpg", "Hatchback", "BMW", "5");
+
+    </script>
+
+    <style>
+        body{
+            overflow-x: hidden;
+        }
+        h1{
+            text-shadow: darkgray 1px 1px;
+        }
+        h4{
+            text-shadow: darkgray 1px 1px;
+        }
+        p{
+            text-shadow: darkgray 1px 1px;
+        }
+        hr{
+            width:100vw;
+            position: absolute;
+            left:0px;
+            right:0px;
+        }
+        #bg{
+            position: absolute;
+            width:110vw;
+            height: 460px;
+            left:0px;
+            right:0px;
+            background-image: url("/image/trip.jpg");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: cover;
+            overflow-x: hidden;
+        }
+
+        p{
+            margin: 10px;
+        }
+        table {
+            margin: 10px;
+        }
+        td {
+            padding: 10px;
+        }
+        td span {
+            background: lightgray;
+            border-radius: 5px;
+            padding: 10px;
+        }
+    </style>
 </div>
-
-<style>
-   body{
-
-       background-image: url('/image/trip.jpg');
-       background-repeat: no-repeat;
-       background-size:100%;
-       
-   }
-   h1{
-       font-size: 400%
-   }
-   h5{
-       color: black
-   }
-</style>
