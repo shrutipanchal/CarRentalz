@@ -4,6 +4,7 @@
     <list default="true" id="43eaf1b4-eda2-4f92-8a35-0d94571ec5e0" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/views/cars.handlebars" beforeDir="false" afterPath="$PROJECT_DIR$/views/cars.handlebars" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/reserve.handlebars" beforeDir="false" afterPath="$PROJECT_DIR$/views/reserve.handlebars" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -127,14 +127,20 @@
             }
         }
 
-        function carListing(carName, rate, imgSrc, type, maker, seats, fuel, desc){
+        function carListing(carName, carID, rate, imgSrc, type, maker, seats, fuel, desc){
             let listing = "";
 
             listing += "<div class='row'>";
             listing += "<div class='card col-12' style='padding:0px'>";
             listing += "<div class='card-header'>"
             listing += "<h4 style='float:left;'>"+carName+"</h4>"
-            listing += "<button style='float:right;' class='btn btn-md btn-success'>Rent for $"+rate+"/h</button>"
+
+            if(urlData && urlData["startDate"] && urlData["startDate"] !="" && urlData["endDate"] && urlData["endDate"] !="") {
+                listing += "<button style='float:right;' class='btn btn-md btn-success' onclick=(window.location.href='/reserve?id=" + carID + "&sd="+urlData["startDate"]+"&ed="+urlData["endDate"]+"')>Rent for $" + rate + "/h</button>"
+            }else{
+                listing += "<button style='float:right;' class='btn btn-md btn-success' disabled>Rent for $" + rate + "/h (Select dates to rent) </button>"
+            }
+
             listing += "</div>";
             listing += "<div class='row'>";
             listing += "<div class='col-3'><img src='"+imgSrc+"' width='100%' style='border: solid gray 2px; border-radius: 2px'/></div>";
@@ -145,7 +151,7 @@
             listing += "<td><span><i class=\"fa fa-chair\"></i> seats: "+seats+"</span></td></tr>";
             listing += "</table>";
             listing += "<p class='col-3'>"+desc+"</p>";
-            listing+= "</div>";
+            listing += "</div>";
             listing += "</div>";
             listing += "</div><br>";
 
@@ -190,7 +196,7 @@
 
                 //filter dates
                 let reserved = false;
-                if(urlData && urlData["startDate"] && urlData["endDate"]) {
+                if(urlData && urlData["startDate"] && urlData["startDate"] !="" && urlData["endDate"] && urlData["endDate"] !="") {
                     for (let i = 0; i < car["reserved"].length; i++) {
                         //console.log(new Date(urlData["startDate"]))
                         //console.log(new Date(car["reserved"][i]))
@@ -213,7 +219,7 @@
                 if(car["car_type"] == "2") type = "Sedan";
                 if(car["car_type"] == "2") type = "Hatchback";
 
-                carListing(car["name"], car["rate_per_hour"], image, type, car["car_maker"], car["number_of_seats"], fuel, car["description"]);
+                carListing(car["name"], car["_id"], car["rate_per_hour"], image, type, car["car_maker"], car["number_of_seats"], fuel, car["description"]);
             }
         };
 

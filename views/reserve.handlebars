@@ -11,21 +11,21 @@
             <div class="row" style="margin:5px">
                 <div class="col-12" id="carNameDiv">
                     <center>
-                        <h5>Car Name</h5>
+                        <h5 id="carName">Car Name</h5>
                     </center>
                 </div>
             </div>
             <div class="row">
                 <div class='col-6'>
                     <table class='col-12'>
-                        <tr><td><span><i class="fa fa-car"></i> Type: </span></td>
-                        <td><span><i class="fa fa-cogs"></i> Brand: </span></td></tr>
-                        <tr><td><span><i class="fa fa-gas-pump"></i>  Fuel usage: </span></td>
-                        <td><span><i class="fa fa-chair"></i> seats: </span></td></tr>
+                        <tr><td><span><i class="fa fa-car"></i> Type: <span id="type"></span></span></td>
+                        <td><span><i class="fa fa-cogs"></i> Brand: <span id="brand"></span></span></td></tr>
+                        <tr><td><span><i class="fa fa-gas-pump"></i>  Fuel usage: <span id="fuel"></span></span></td>
+                        <td><span><i class="fa fa-chair"></i> seats: <span id="seats"></span></span></td></tr>
                     </table>
                 </div>
                 <div class='col-6'>
-                    <p class='col-12'>description</p>
+                    <p class='col-12' id="desc">description</p>
                 </div>
             </div>
         </div>
@@ -34,14 +34,108 @@
                 <center><h5> Confirm your reservation </h5></center>
             </div>
             <table class="col-11">
-                <tr><td><div>Start Date: </div></td></tr>
-                <tr><td><div>End Date: </div></td></tr>
-                <tr><td><div>Full Price: </div></td></tr>
-                <tr><td><center><button class="btn-success btn-lg">Reserve</button></center></td></tr>
+                <tr><td><div>Start Date: <span id="startDate"></span></div></td></tr>
+                <tr><td><div>End Date: <span id="endDate"></span></div></td></tr>
+                <tr><td><div>Full Price: <span id="fullPrice"></span></div></td></tr>
+                <tr><td><center><button class="btn-success btn-lg" onclick="SendReservation()">Reserve</button></center></td></tr>
             </table>
         </div>
     </div>
 </div>
+
+<script>
+    function parseURLParams(url) {
+        var queryStart = url.indexOf("?") + 1,
+                queryEnd   = url.indexOf("#") + 1 || url.length + 1,
+                query = url.slice(queryStart, queryEnd - 1),
+                pairs = query.replace(/\+/g, " ").split("&"),
+                parms = {}, i, n, v, nv;
+
+        if (query === url || query === "") return;
+
+        for (i = 0; i < pairs.length; i++) {
+            nv = pairs[i].split("=", 2);
+            n = decodeURIComponent(nv[0]);
+            v = decodeURIComponent(nv[1]);
+
+            if (!parms.hasOwnProperty(n)) parms[n] = [];
+            parms[n].push(nv.length === 2 ? v : null);
+        }
+        return parms;
+    }
+    urlData = parseURLParams(window.location.href);
+
+
+    let carData = {};
+    function GetData(){
+        const Http = new XMLHttpRequest();
+        const url='http://ec2-54-175-0-146.compute-1.amazonaws.com:3000/cars';
+        Http.open("GET", url);
+        Http.setRequestHeader("Authorization","token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3RAdGVzdC5jb20iLCJfaWQiOiI1ZmM5NWUwMTJhZmNjYjAwMWNlMzVjOWQiLCJ1c2VySWQiOiI1ZmM5NWUwMTJhZmNjYjAwMWNlMzVjOWQiLCJpYXQiOjE2MDcwMzIzNDEsImV4cCI6MTYwNzA2ODM0MX0.7gkjwwHNSWAKOvrWTIuxkqTCu9LMG73QHcadKCIOafg");
+        Http.send();
+
+        Http.onreadystatechange = (e) => {
+            if(Http.readyState == 4) {
+                console.log(Http.responseText);
+                carData = JSON.parse(Http.responseText);
+                showCar(carData);
+            }
+        }
+    }
+    GetData();
+
+    function showCar(data){
+        let car;
+        for(let i = 0; i < data["products"].length; i++){
+            console.log(data["products"][i]);
+            if(urlData && urlData["id"] && urlData["id"] == data["products"][i]["_id"]){
+                car = data["products"][i];
+            }
+        }
+        if(!car) window.location.href = "/cars/";
+
+        $("#startDate").html(urlData["sd"]);
+        $("#endDate").html(urlData["ed"]);
+
+        let price = diff_hours(new Date(urlData["sd"]), new Date(urlData["ed"])) * car["rate_per_hour"];
+        $("#fullPrice").html("$"+price);
+
+        $("#carName").html(car["name"]);
+
+        let fuel = "eco";
+        $("#fuel").html(fuel);
+
+        let brand = "TBD";
+        $("#brand").html(brand);
+
+        let type = "Pickup"
+        if(car["car_type"] == "2") type = "Sedan";
+        if(car["car_type"] == "2") type = "Hatchback";
+
+        $("#seats").html(car["number_of_seats"]);
+
+        $("#desc").html(car["description"]);
+    };
+
+    function diff_hours(dt2, dt1) {
+        var diff =(dt2.getTime() - dt1.getTime()) / 1000;
+        diff /= (60 * 60);
+        return Math.abs(Math.round(diff));
+    }
+
+    function SendReservation(){
+        const Http = new XMLHttpRequest();
+        const url='http://ec2-54-175-0-146.compute-1.amazonaws.com:3000/orders/?action=new&id='+urlData["id"]+'&sd='+urlData["sd"]+'&ed='+urlData["ed"]
+        Http.open("GET", url);
+        Http.setRequestHeader("Authorization","token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3RAdGVzdC5jb20iLCJfaWQiOiI1ZmM5NWUwMTJhZmNjYjAwMWNlMzVjOWQiLCJ1c2VySWQiOiI1ZmM5NWUwMTJhZmNjYjAwMWNlMzVjOWQiLCJpYXQiOjE2MDcwMzIzNDEsImV4cCI6MTYwNzA2ODM0MX0.7gkjwwHNSWAKOvrWTIuxkqTCu9LMG73QHcadKCIOafg");
+        Http.send();
+        Http.onreadystatechange = (e) => {
+            if(Http.readyState == 4) {
+                console.log(Http.responseText);
+            }
+        }
+    }
+</script>
 
 
 <style>
