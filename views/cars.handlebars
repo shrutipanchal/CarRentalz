@@ -12,11 +12,11 @@
                                 <h4>PICK-UP LOCATION:</h4>
                                 <select class="custom-select" name="location" id="locationInput">
                                     <option selected="">Select</option>
-                                    <option value="location1">Location1</option>
-                                    <option value="location2">Location2</option>
-                                    <option value="location3">Location3</option>
-                                    <option value="location4">Location4</option>
-                                    <option value="location5">Location5</option>
+                                    <option value="1">Location1</option>
+                                    <option value="2">Location2</option>
+                                    <option value="3">Location3</option>
+                                    <option value="4">Location4</option>
+                                    <option value="5">Location5</option>
                                 </select>
                             </div>
                             <!--== Pick Up Location ==-->
@@ -110,21 +110,20 @@
             return parms;
         }
 
-        data = parseURLParams(window.location.href);
-        console.log(data);
+        urlData = parseURLParams(window.location.href);
 
-        if(data) {
-            if (data["location"]) {
-                $("#locationInput").val(data["location"][0]);
+        if(urlData) {
+            if (urlData["location"]) {
+                $("#locationInput").val(urlData["location"][0]);
             }
-            if (data["startDate"]) {
-                $("#startDateInput").val(data["startDate"][0]);
+            if (urlData["startDate"]) {
+                $("#startDateInput").val(urlData["startDate"][0]);
             }
-            if (data["endDate"]) {
-                $("#endDateInput").val(data["endDate"][0]);
+            if (urlData["endDate"]) {
+                $("#endDateInput").val(urlData["endDate"][0]);
             }
-            if (data["cartType"]) {
-                $("#cartTypeInput").val(data["cartType"][0]);
+            if (urlData["cartType"]) {
+                $("#cartTypeInput").val(urlData["cartType"][0]);
             }
         }
 
@@ -152,12 +151,37 @@
 
             $("#carList").append($(listing));
         }
-        carListing("Car Name1", 100, "https://www.extremetech.com/wp-content/uploads/2019/12/SONATA-hero-option1-764A5360-edit.jpg", "Hatchback", "BMW", "5");
-        carListing("car2", 400, "https://www.extremetech.com/wp-content/uploads/2019/12/SONATA-hero-option1-764A5360-edit.jpg", "Hatchback", "BMW", "5");
-        carListing("car3", 50, "https://www.extremetech.com/wp-content/uploads/2019/12/SONATA-hero-option1-764A5360-edit.jpg", "Hatchback", "BMW", "5");
-        carListing("car3", 50, "https://www.extremetech.com/wp-content/uploads/2019/12/SONATA-hero-option1-764A5360-edit.jpg", "Hatchback", "BMW", "5");
-        carListing("car3", 50, "https://www.extremetech.com/wp-content/uploads/2019/12/SONATA-hero-option1-764A5360-edit.jpg", "Hatchback", "BMW", "5");
-        carListing("car3", 50, "https://www.extremetech.com/wp-content/uploads/2019/12/SONATA-hero-option1-764A5360-edit.jpg", "Hatchback", "BMW", "5");
+
+        let carData = {};
+        function GetData(){
+            const Http = new XMLHttpRequest();
+            const url='http://ec2-54-175-0-146.compute-1.amazonaws.com:3000/cars';
+            Http.open("GET", url);
+            Http.send();
+
+            Http.onreadystatechange = (e) => {
+                if(Http.readyState == 4) {
+                    carData = JSON.parse(Http.responseText);
+                    listCars(carData);
+                }
+            }
+        }
+        GetData();
+
+        function listCars(data){
+            for(let i = 0; i < data["products"].length; i++){
+                console.log(data["products"][i]);
+                let car = data["products"][i];
+                
+                if(urlData && urlData["location"]) {
+                    if (car["location"] != urlData["location"]) continue;
+                }
+
+                let image = "https://www.extremetech.com/wp-content/uploads/2019/12/SONATA-hero-option1-764A5360-edit.jpg";
+                let fuel = "eco";
+                carListing(car["name"], car["rate_per_hour"], image, car["car_type"], car["car_maker"], car["number_of_seats"], fuel, car["description"]);
+            }
+        };
 
     </script>
 

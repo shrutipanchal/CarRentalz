@@ -69,8 +69,12 @@ app.get('/cars',(req,res)=>{
     res.render('cars',{
         title: 'Cars'
     });
+});
 
-
+app.get('/reserve',(req,res)=>{
+    res.render('reserve',{
+        title: 'Reserve a car'
+    });
 });
 
 app.get('/contact',(req,res)=>{
