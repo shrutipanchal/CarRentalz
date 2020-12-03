@@ -33,6 +33,12 @@ app.get('/about',(req,res)=>{
     });
 });
 
+app.get('/cars',(req,res)=>{
+    res.render('cars',{
+        title: 'Cars'
+    });
+});
+
 app.get('/contact',(req,res)=>{
     res.render('contact',{
         title: 'Contact Us'
