@@ -37,7 +37,8 @@
                 <tr><td><div>Start Date: <span id="startDate"></span></div></td></tr>
                 <tr><td><div>End Date: <span id="endDate"></span></div></td></tr>
                 <tr><td><div>Full Price: <span id="fullPrice"></span></div></td></tr>
-                <tr><td><center><button class="btn-success btn-lg" onclick="SendReservation()">Reserve</button></center></td></tr>
+                <tr><td><center><button class="btn-success btn-lg" onclick="SendReservation()" id="reserveButton">Reserve</button></center></td></tr>
+                <tr><td><center><span id="successText" style="color:darkgreen"</span></center></td></tr>
             </table>
         </div>
     </div>
@@ -132,6 +133,8 @@
         Http.onreadystatechange = (e) => {
             if(Http.readyState == 4) {
                 console.log(Http.responseText);
+                $("#reserveButton").prop("disabled",true);
+                $("#successText").html("Car successfully reserved!")
             }
         }
     }
