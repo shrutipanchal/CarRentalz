@@ -1,6 +1,18 @@
+# San Jose State University
+# CMPE 172 - 02  - Enterprise Software
+# Team members
+   
+   Csongor Farago
+   
+   Shruti Panchal
+   
+   Param Patel
+
+
 # CarRentalz
 
-# Clone the repo
+A simple car renting website for your next roadtrip with amazing discounts!
+
 
 # For running it into your local system:
    Step 1: download the zip or clone the repo
