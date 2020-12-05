@@ -15,7 +15,7 @@ A simple car renting website for your next roadtrip with amazing discounts!
 
 # Sample Screenshots of the demo
 
-
+inside the screenshots folder of the repo
 
 
 # For running it into your local system:
